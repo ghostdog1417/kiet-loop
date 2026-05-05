@@ -20,9 +20,22 @@ const eventsRoutes = require('./routes/events')
 const reviewsRoutes = require('./routes/reviews')
 const launchRoutes = require('./routes/launch')
 
+const allowedOrigins = [
+  process.env.FRONTEND_URL || 'https://kiet-loop.vercel.app',
+  'http://localhost:3000'
+]
+
+const corsOptions = {
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true)
+    return callback(new Error('Not allowed by CORS'))
+  },
+  credentials: true
+}
+
 const app = express()
 app.use(helmet())
-app.use(cors())
+app.use(cors(corsOptions))
 app.use(express.json())
 app.use(morgan('dev'))
 
@@ -43,7 +56,12 @@ app.use('/notifications', launchRoutes)
 app.use('/referral', launchRoutes)
 
 const server = http.createServer(app)
-const io = new Server(server, { cors: { origin: '*' } })
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins,
+    credentials: true
+  }
+})
 
 io.on('connection', (socket) => {
   console.log('socket connected', socket.id)
