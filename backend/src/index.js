@@ -39,6 +39,7 @@ app.use(cors(corsOptions))
 app.use(express.json())
 app.use(morgan('dev'))
 
+app.get('/', (req, res) => res.json({ message: 'KIET Loop API', status: 'running' }))
 app.get('/health', (req, res) => res.json({ status: 'ok' }))
 
 app.use('/auth', authRoutes)
